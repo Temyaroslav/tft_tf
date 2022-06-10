@@ -31,7 +31,8 @@ import libs.tft_model
 import libs.utils as utils
 import numpy as np
 import pandas as pd
-import tensorflow.compat.v1 as tf
+import tensorflow as tf
+import tensorflow.python.keras.backend as K
 
 ExperimentConfig = expt_settings.configs.ExperimentConfig
 HyperparamOptManager = libs.hyperparam_opt.HyperparamOptManager
@@ -58,7 +59,7 @@ def main(expt_name, use_gpu, restart_opt, model_folder, hyperparam_iterations,
         "Data formatters should inherit from" +
         "AbstractDataFormatter! Type={}".format(type(data_formatter)))
 
-  default_keras_session = tf.keras.backend.get_session()
+  default_keras_session = K.get_session()
 
   if use_gpu:
     tf_config = utils.get_default_tensorflow_config(tf_device="gpu", gpu_id=0)
