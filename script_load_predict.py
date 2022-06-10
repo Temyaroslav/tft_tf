@@ -40,7 +40,9 @@ import libs.tft_model
 import libs.utils as utils
 import numpy as np
 import pandas as pd
-import tensorflow.compat.v1 as tf
+import tensorflow as tf
+import tensorflow.python.keras.backend as K
+
 #tf.disable_v2_behavior()
 
 ExperimentConfig = expt_settings.configs.ExperimentConfig
@@ -75,7 +77,7 @@ def main(expt_name,
         "AbstractDataFormatter! Type={}".format(type(data_formatter)))
 
   # Tensorflow setup
-  default_keras_session = tf.keras.backend.get_session()
+  default_keras_session = K.get_session()
 
   if use_gpu:
     tf_config = utils.get_default_tensorflow_config(tf_device="gpu", gpu_id=0)
@@ -111,9 +113,9 @@ def main(expt_name,
     print("{}: {}".format(k, params[k]))
 
   print("*** Running tests ***")
-  tf.reset_default_graph()
-  with tf.Graph().as_default(), tf.Session(config=tf_config) as sess:
-    tf.keras.backend.set_session(sess)
+  tf.compat.v1.reset_default_graph()
+  with tf.Graph().as_default(), tf.compat.v1.Session(config=tf_config) as sess:
+    K.set_session(sess)
     best_params = opt_manager.get_best_params()
     print("best params")
     print(best_params)
@@ -149,7 +151,7 @@ def main(expt_name,
         extract_numerical_data(targets), extract_numerical_data(p90_forecast),
         0.9)
 
-    tf.keras.backend.set_session(default_keras_session)
+    K.set_session(default_keras_session)
 
   print("Training completed @ {}".format(dte.datetime.now()))
   #print("Best validation loss = {}".format(val_loss))

@@ -139,12 +139,12 @@ def main(expt_name,
         opt_manager.update_score(params, val_loss, model)
         best_loss = val_loss
 
-      tf.keras.backend.set_session(default_keras_session)
+      K.set_session(default_keras_session)
 
   print("*** Running tests ***")
   tf.compat.v1.reset_default_graph()
   with tf.Graph().as_default(), tf.compat.v1.Session(config=tf_config) as sess:
-    tf.keras.backend.set_session(sess)
+    K.set_session(sess)
     best_params = opt_manager.get_best_params()
     model = ModelClass(best_params, use_cudnn=use_gpu)
 
@@ -173,7 +173,7 @@ def main(expt_name,
         extract_numerical_data(targets), extract_numerical_data(p90_forecast),
         0.9)
 
-    tf.keras.backend.set_session(default_keras_session)
+    K.set_session(default_keras_session)
 
   print("Training completed @ {}".format(dte.datetime.now()))
   print("Best validation loss = {}".format(val_loss))

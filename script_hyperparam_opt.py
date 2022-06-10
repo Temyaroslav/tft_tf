@@ -94,8 +94,8 @@ def main(expt_name, use_gpu, restart_opt, model_folder, hyperparam_iterations,
     print("# Running hyperparam optimisation {} of {} for {}".format(
         len(opt_manager.results.columns) + 1, hyperparam_iterations, "TFT"))
 
-    tf.reset_default_graph()
-    with tf.Graph().as_default(), tf.Session(config=tf_config) as sess:
+    tf.compat.v1.reset_default_graph()
+    with tf.Graph().as_default(), tf.compat.v1.Session(config=tf_config) as sess:
 
       tf.keras.backend.set_session(sess)
 
@@ -122,8 +122,8 @@ def main(expt_name, use_gpu, restart_opt, model_folder, hyperparam_iterations,
       tf.keras.backend.set_session(default_keras_session)
 
   print("*** Running tests ***")
-  tf.reset_default_graph()
-  with tf.Graph().as_default(), tf.Session(config=tf_config) as sess:
+  tf.compat.v1.reset_default_graph()
+  with tf.Graph().as_default(), tf.compat.v1.Session(config=tf_config) as sess:
     tf.keras.backend.set_session(sess)
     best_params = opt_manager.get_best_params()
     model = ModelClass(best_params, use_cudnn=False)
