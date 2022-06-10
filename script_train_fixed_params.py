@@ -118,10 +118,10 @@ def main(expt_name,
   best_loss = np.Inf
   for _ in range(num_repeats):
 
-    tf.reset_default_graph()
-    with tf.Graph().as_default(), tf.Session(config=tf_config) as sess:
+    tf.compat.v1.reset_default_graph()
+    with tf.Graph().as_default(), tf.compat.v1.Session(config=tf_config) as sess:
 
-      tf.keras.backend.set_session(sess)
+      K.set_session(sess)
 
       params = opt_manager.get_next_parameters()
       model = ModelClass(params, use_cudnn=use_gpu)
@@ -130,7 +130,7 @@ def main(expt_name,
         model.cache_batched_data(train, "train", num_samples=train_samples)
         model.cache_batched_data(valid, "valid", num_samples=valid_samples)
 
-      sess.run(tf.global_variables_initializer())
+      sess.run(tf.compat.v1.global_variables_initializer())
       model.fit()
 
       val_loss = model.evaluate()
@@ -142,8 +142,8 @@ def main(expt_name,
       tf.keras.backend.set_session(default_keras_session)
 
   print("*** Running tests ***")
-  tf.reset_default_graph()
-  with tf.Graph().as_default(), tf.Session(config=tf_config) as sess:
+  tf.compat.v1.reset_default_graph()
+  with tf.Graph().as_default(), tf.compat.v1.Session(config=tf_config) as sess:
     tf.keras.backend.set_session(sess)
     best_params = opt_manager.get_best_params()
     model = ModelClass(best_params, use_cudnn=use_gpu)
