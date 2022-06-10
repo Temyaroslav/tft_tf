@@ -40,7 +40,7 @@ import libs.tft_model
 import libs.utils as utils
 import numpy as np
 import pandas as pd
-import tensorflow.compat.v1 as tf
+import tensorflow as tf
 
 ExperimentConfig = expt_settings.configs.ExperimentConfig
 HyperparamOptManager = libs.hyperparam_opt.HyperparamOptManager
@@ -52,7 +52,6 @@ def main(expt_name,
          model_folder,
          data_csv_path,
          data_formatter,
-         enable_scaling,
          use_testing_mode=False):
   """Trains tft based on defined model params.
 
@@ -87,12 +86,12 @@ def main(expt_name,
 
   print("Loading & splitting data...")
   raw_data = pd.read_csv(data_csv_path)#, index_col=0)
-
-  train, valid, test = data_formatter.split_data(raw_data, enable_scaling=enable_scaling)
+  print("Raw:")
+  print(raw_data)
+  train, valid, test = data_formatter.split_data(raw_data)
   train_samples, valid_samples = data_formatter.get_num_samples_for_calibration(
   )
-  
-  print(train)
+
   # Sets up default params
   fixed_params = data_formatter.get_experiment_params()
   params = data_formatter.get_default_model_params()
@@ -124,7 +123,7 @@ def main(expt_name,
       tf.keras.backend.set_session(sess)
 
       params = opt_manager.get_next_parameters()
-      model = ModelClass(params, use_cudnn=False)
+      model = ModelClass(params, use_cudnn=use_gpu)
 
       if not model.training_data_cached():
         model.cache_batched_data(train, "train", num_samples=train_samples)
@@ -146,9 +145,7 @@ def main(expt_name,
   with tf.Graph().as_default(), tf.Session(config=tf_config) as sess:
     tf.keras.backend.set_session(sess)
     best_params = opt_manager.get_best_params()
-    print("best params")
-    print(best_params)
-    model = ModelClass(best_params, use_cudnn=False)
+    model = ModelClass(best_params, use_cudnn=use_gpu)
 
     model.load(opt_manager.hyperparam_folder)
 
@@ -158,8 +155,6 @@ def main(expt_name,
     print("Computing test loss")
     output_map = model.predict(test, return_targets=True)
     targets = data_formatter.format_predictions(output_map["targets"])
-    print("Targets:::::")
-    print(targets)
     p50_forecast = data_formatter.format_predictions(output_map["p50"])
     p90_forecast = data_formatter.format_predictions(output_map["p90"])
 
@@ -221,22 +216,14 @@ if __name__ == "__main__":
         choices=["yes", "no"],
         default="no",
         help="Whether to use gpu for training.")
-    parser.add_argument(
-        "enable_scaling",
-        metavar="s",
-        type=str,
-        nargs="?",
-        choices=["yes", "no"],
-        default="no",
-        help="Whether to use Standard Scaling Transformation before training.")
-        
+
     args = parser.parse_known_args()[0]
 
     root_folder = None if args.output_folder == "." else args.output_folder
 
-    return args.expt_name, root_folder, args.use_gpu == "yes", args.enable_scaling == "yes"
+    return args.expt_name, root_folder, args.use_gpu == "yes"
 
-  name, output_folder, use_tensorflow_with_gpu, enable_scaling = get_args()
+  name, output_folder, use_tensorflow_with_gpu = get_args()
 
   print("Using output folder {}".format(output_folder))
 
@@ -250,6 +237,5 @@ if __name__ == "__main__":
       model_folder=os.path.join(config.model_folder, "fixed"),
       data_csv_path=config.data_csv_path,
       data_formatter=formatter,
-      enable_scaling=enable_scaling,
       use_testing_mode=False)
       #use_testing_mode=True)  # Change to false to use original default params

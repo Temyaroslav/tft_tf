@@ -51,9 +51,6 @@ import pandas as pd
 import pyunpack
 import wget
 
-from talib.abstract import *
-import talib
-import pytz
 
 # General functions for data downloading & aggregation.
 def download_from_url(url, output_path):
@@ -189,111 +186,7 @@ def download_volatility(config):
 
   print('Done.')
 
-# Dataset specific download routines.
-def process_stock(config, data_pct):
-  """Process stock data from local path."""
-  csv_folder = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'stock_dataset')
-  csv_path = os.path.join(csv_folder, 'banknifty_all_1min.csv')
-  #csv_path = os.path.join(csv_folder, 'testdata_bankNifty_15min.csv')
-  df = pd.read_csv(csv_path)  # no explicit index
 
-  #Read partial data
-  df = df.sort_values("t")
-  df.reset_index(drop=True, inplace=True)
-  #data_pct is % of data 
-  df_rec = len(df) * (data_pct/100)
-  print("Percentage of Data used: "+str(data_pct)+"%")
-  print("Records Count:"+str(df_rec))
-  df = df[-int(df_rec):]
-  df.reset_index(drop=True, inplace=True)
-
-  #Add Symbol Column
-  df["Symbol"] = "BankNifty"
-	
-  #Adds additional date/day fields
-  dates = pd.to_datetime(df["t"], format="%Y-%m-%dT%H:%M:%S%z")
-  df['hour'] = dates.dt.hour
-  df['dayofweek'] = dates.dt.dayofweek
-  #df['week'] = dates.dt.week
-  df['weekday'] = dates.dt.weekday
-  #df['weekofyear'] = dates.dt.weekofyear
-  df['month'] = dates.dt.month
-  df["year"] = dates.dt.year
-  df["time"] = dates.dt.time
-  df["day"] = dates.dt.day
-  df['categorical_id'] = df['Symbol'].copy()
-  timeDelta = dates - pd.datetime(2015, 1, 1, tzinfo=pytz.FixedOffset(330))
-  df['minutes_from_start'] = (timeDelta.dt.days * 24 * 60 + timeDelta.dt.seconds / 60)
-  df["t"] = dates
-  
-  #Add Talib features
-  def add_talib_features(high, low, close_val):
-    df["natr"] = NATR(high, low, close_val, timeperiod=10)
-    df["atr"] = ATR(high, low, close_val, timeperiod=10)
-    df["rsi"] = RSI(close_val, timeperiod=14)
-    df["macd"], df["macdsignal"], macdhist = MACD(close_val, fastperiod=12, slowperiod=26, signalperiod=9)
-    df["tsf"] = TSF(close_val, timeperiod=14)
-    df["dema"] = DEMA(close_val, timeperiod=21)
-
-  add_talib_features(df['h'], df['l'], df['c'])
-	
-  #Transform to log values
-  #df[["o", "l", "h", "c"]] = np.log(df[["o", "l", "h", "c"]])
-	
-	
-  # Adds static information
-  symbol_region_mapping = {
-      '.AEX': 'EMEA',
-      '.AORD': 'APAC',
-      '.BFX': 'EMEA',
-      '.BSESN': 'APAC',
-      '.BVLG': 'EMEA',
-      '.BVSP': 'AMER',
-      '.DJI': 'AMER',
-      '.FCHI': 'EMEA',
-      '.FTMIB': 'EMEA',
-      '.FTSE': 'EMEA',
-      '.GDAXI': 'EMEA',
-      '.GSPTSE': 'AMER',
-      '.HSI': 'APAC',
-      '.IBEX': 'EMEA',
-      '.IXIC': 'AMER',
-      '.KS11': 'APAC',
-      '.KSE': 'APAC',
-      '.MXX': 'AMER',
-      '.N225': 'APAC ',
-      '.NSEI': 'APAC',
-      '.OMXC20': 'EMEA',
-      '.OMXHPI': 'EMEA',
-      '.OMXSPI': 'EMEA',
-      '.OSEAX': 'EMEA',
-      '.RUT': 'EMEA',
-      '.SMSI': 'EMEA',
-      '.SPX': 'AMER',
-      '.SSEC': 'APAC',
-      '.SSMI': 'EMEA',
-      '.STI': 'APAC',
-      '.STOXX50E': 'EMEA'
-  }
-
-  df['Region'] = 'APAC'
-
-  #Drop NaN values, reset index
-  df.dropna(inplace=True)
-  df.reset_index(inplace=True, drop=True)
-    
-  # Performs final processing
-  #Sort values on timestamp column
-  df.sort_values("t", inplace=True)
-  
-  #output_file = config.test_data_csv_path
-  output_file = config.data_csv_path
-  print('Completed formatting, saving to {}'.format(output_file))
-  df.to_csv(output_file, index=False)
-
-  print('Done.')
-  
-  
 def download_electricity(config):
   """Downloads electricity dataset from UCI repository."""
 
@@ -672,7 +565,7 @@ def process_favorita(config):
 
 
 # Core routine.
-def main(expt_name, force_download, output_folder, data_pct):
+def main(expt_name, force_download, output_folder):
   """Runs main download routine.
 
   Args:
@@ -698,8 +591,7 @@ def main(expt_name, force_download, output_folder, data_pct):
       'volatility': download_volatility,
       'electricity': download_electricity,
       'traffic': download_traffic,
-      'favorita': process_favorita,
-      'stock': process_stock
+      'favorita': process_favorita
   }
 
   if expt_name not in download_functions:
@@ -709,11 +601,8 @@ def main(expt_name, force_download, output_folder, data_pct):
 
   # Run data download
   print('Getting {} data...'.format(expt_name))
-  if expt_name == 'stock':
-    download_function(expt_config, data_pct)
-  else:
-    download_function(expt_config)
-    
+  download_function(expt_config)
+
   print('Download completed.')
 
 
@@ -740,13 +629,6 @@ if __name__ == '__main__':
         default='.',
         help='Path to folder for data download')
     parser.add_argument(
-        'data_pct',
-        metavar='p',
-        type=str,
-        nargs='?',
-        default='100',
-        help='Percentage of data use for model training')
-    parser.add_argument(
         'force_download',
         metavar='r',
         type=str,
@@ -759,7 +641,8 @@ if __name__ == '__main__':
 
     root_folder = None if args.output_folder == '.' else args.output_folder
 
-    return args.expt_name, args.force_download == 'yes', root_folder, int(args.data_pct)
+    return args.expt_name, args.force_download == 'yes', root_folder
 
-  name, force, folder, data_pct = get_args()
-  main(expt_name=name, force_download=force, output_folder=folder, data_pct=data_pct)
+  name, force, folder = get_args()
+
+  main(expt_name=name, force_download=force, output_folder=folder)
