@@ -117,7 +117,7 @@ def main(expt_name,
   tf.compat.v1.reset_default_graph()
   with tf.Graph().as_default(), tf.compat.v1.Session(config=tf_config) as sess:
     K.set_session(sess)
-    best_params = opt_manager.get_best_params() if opt_manager.optimal_name != '' else opt_manager.get_next_parameters()
+    best_params = opt_manager.get_best_params() if opt_manager.optimal_name != '' else data_formatters.get_experiment_params()
     print("best params")
     print(best_params)
     model = ModelClass(best_params, use_cudnn=False)

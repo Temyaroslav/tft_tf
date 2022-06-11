@@ -97,7 +97,7 @@ def main(expt_name, use_gpu, restart_opt, model_folder, hyperparam_iterations,
     tf.compat.v1.reset_default_graph()
     with tf.Graph().as_default(), tf.compat.v1.Session(config=tf_config) as sess:
 
-      tf.keras.backend.set_session(sess)
+      K.set_session(sess)
 
       params = opt_manager.get_next_parameters()
       model = ModelClass(params, use_cudnn=False)
@@ -106,7 +106,7 @@ def main(expt_name, use_gpu, restart_opt, model_folder, hyperparam_iterations,
         model.cache_batched_data(train, "train", num_samples=train_samples)
         model.cache_batched_data(valid, "valid", num_samples=valid_samples)
 
-      sess.run(tf.global_variables_initializer())
+      sess.run(tf.compat.v1.global_variables_initializer())
       model.fit()
 
       val_loss = model.evaluate()
