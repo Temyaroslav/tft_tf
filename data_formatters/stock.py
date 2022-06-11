@@ -191,7 +191,7 @@ class StockFormatter(GenericDataFormatter):
 
         for col in column_names:
             if col not in {'forecast_time', 'identifier'}:
-                output[col] = self._target_scaler.inverse_transform(predictions[col])
+                output[col] = self._target_scaler.inverse_transform(predictions[col].reshape(-1, 1))
 
         return output
 
@@ -202,7 +202,7 @@ class StockFormatter(GenericDataFormatter):
         fixed_params = {
             'total_time_steps': 252 + 5,
             'num_encoder_steps': 252,
-            'num_epochs': 20,  # 100
+            'num_epochs': 2,  # 100
             'early_stopping_patience': 5,
             'multiprocessing_workers': 5,
         }
@@ -246,10 +246,11 @@ class MyStockFormatter(GenericDataFormatter):
     _column_definition = [
         ('ticker', DataTypes.CATEGORICAL, InputTypes.ID),
         ('t', DataTypes.DATE, InputTypes.TIME),
-        ('c', DataTypes.REAL_VALUED, InputTypes.TARGET),
-        ('o', DataTypes.REAL_VALUED, InputTypes.OBSERVED_INPUT),
-        ('l', DataTypes.REAL_VALUED, InputTypes.KNOWN_INPUT),
-        ('h', DataTypes.REAL_VALUED, InputTypes.KNOWN_INPUT),
+        ('Close', DataTypes.REAL_VALUED, InputTypes.TARGET),
+        ('Open', DataTypes.REAL_VALUED, InputTypes.OBSERVED_INPUT),
+        ('Low', DataTypes.REAL_VALUED, InputTypes.KNOWN_INPUT),
+        ('High', DataTypes.REAL_VALUED, InputTypes.KNOWN_INPUT),
+        ('Volume', DataTypes.REAL_VALUED, InputTypes.KNOWN_INPUT),
         ('diff', DataTypes.REAL_VALUED, InputTypes.KNOWN_INPUT),
         ('hour', DataTypes.CATEGORICAL, InputTypes.KNOWN_INPUT),
         # ('week', DataTypes.CATEGORICAL, InputTypes.KNOWN_INPUT),
