@@ -90,7 +90,8 @@ def main(expt_name,
   print("Loading & splitting data...")
   raw_data = pd.read_csv(data_csv_path)#, index_col=0)
 
-  test = data_formatter.transform_test_data(raw_data, enable_scaling=False)
+  # test = data_formatter.transform_test_data(raw_data, enable_scaling=False)
+  _, _, test = data_formatter.split_data(raw_data)
   #train_samples, valid_samples = data_formatter.get_num_samples_for_calibration(
   #)
 
