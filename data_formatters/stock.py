@@ -285,6 +285,7 @@ class MyStockFormatter(GenericDataFormatter):
         ('day', DataTypes.CATEGORICAL, InputTypes.KNOWN_INPUT),
         ('hour', DataTypes.CATEGORICAL, InputTypes.KNOWN_INPUT),
         ('dayofweek', DataTypes.CATEGORICAL, InputTypes.KNOWN_INPUT),
+        ('region', DataTypes.CATEGORICAL, InputTypes.STATIC_INPUT),
     ]
 
     def __init__(self):
