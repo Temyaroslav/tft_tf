@@ -226,6 +226,7 @@ if __name__ == "__main__":
     return args.expt_name, root_folder, args.use_gpu == "yes"
 
   name, output_folder, use_tensorflow_with_gpu = get_args()
+  # name, output_folder, use_tensorflow_with_gpu = 'ibm_stock', r'C:\Users\Yaroslav\Documents\Projects\tft\stock_data', 'no'
 
   print("Using output folder {}".format(output_folder))
 
