@@ -153,7 +153,7 @@ def main(expt_name, use_gpu, restart_opt, model_folder, hyperparam_iterations,
         extract_numerical_data(targets), extract_numerical_data(p90_forecast),
         0.9)
 
-    tf.keras.backend.set_session(default_keras_session)
+    K.set_session(default_keras_session)
 
   print("Hyperparam optimisation completed @ {}".format(dte.datetime.now()))
   print("Best validation loss = {}".format(val_loss))
