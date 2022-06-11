@@ -243,14 +243,6 @@ class MyStockFormatter(GenericDataFormatter):
       identifiers: Entity identifiers used in experiments.
     """
 
-    # 'shadow_up_1H', 'shadow_down_1H', 'hl_ratio_1H', 'oc_diff_1H',
-    # 'MA20_1H', 'MA50_1H', 'MA100_1H', 'MA200_1H', 'MA200-MA100_1H',
-    # 'MA200-MA50_1H', 'MA200-MA20_1H', 'MA100-MA50_1H', 'MA100-MA20_1H',
-    # 'MA50-MA20_1H', 'EWMA8_1H', 'EWMA20_1H', 'MACD_1H', 'BB_high_1H',
-    # 'BB_low_1H', 'BB_highlow_1H', 'BB_high_dist_1H', 'BB_low_dist_1H',
-    # 'RSI_1H', 'VOL8_1H', 'VOL20_1H', 'ret_1', 'ticker', 'date', 'year',
-    # 'month', 'day', 'dayofweek', 'hour', 't'
-
     _column_definition = [
         ('ticker', DataTypes.CATEGORICAL, InputTypes.ID),
         ('t', DataTypes.DATE, InputTypes.TIME),
@@ -261,16 +253,38 @@ class MyStockFormatter(GenericDataFormatter):
         ('High', DataTypes.REAL_VALUED, InputTypes.KNOWN_INPUT),
         ('Volume', DataTypes.REAL_VALUED, InputTypes.KNOWN_INPUT),
         ('ln_Close', DataTypes.REAL_VALUED, InputTypes.OBSERVED_INPUT),
-
-        ('diff', DataTypes.REAL_VALUED, InputTypes.KNOWN_INPUT),
-        ('hour', DataTypes.CATEGORICAL, InputTypes.KNOWN_INPUT),
-        # ('week', DataTypes.CATEGORICAL, InputTypes.KNOWN_INPUT),
-        ('weekday', DataTypes.CATEGORICAL, InputTypes.KNOWN_INPUT),
-        ('dayofweek', DataTypes.CATEGORICAL, InputTypes.KNOWN_INPUT),
-        # ('date', DataTypes.CATEGORICAL, InputTypes.KNOWN_INPUT),
-        # ('weekofyear', DataTypes.CATEGORICAL, InputTypes.KNOWN_INPUT),
+        ('ret_1', DataTypes.REAL_VALUED, InputTypes.TARGET),
+        ('shadow_up_1H', DataTypes.REAL_VALUED, InputTypes.KNOWN_INPUT),
+        ('shadow_down_1H', DataTypes.REAL_VALUED, InputTypes.KNOWN_INPUT),
+        ('hl_ratio_1H', DataTypes.REAL_VALUED, InputTypes.KNOWN_INPUT),
+        ('oc_diff_1H', DataTypes.REAL_VALUED, InputTypes.KNOWN_INPUT),
+        ('MA20_1H', DataTypes.REAL_VALUED, InputTypes.KNOWN_INPUT),
+        ('MA50_1H', DataTypes.REAL_VALUED, InputTypes.KNOWN_INPUT),
+        ('MA100_1H', DataTypes.REAL_VALUED, InputTypes.KNOWN_INPUT),
+        ('MA200_1H', DataTypes.REAL_VALUED, InputTypes.KNOWN_INPUT),
+        ('MA200-MA100_1H', DataTypes.REAL_VALUED, InputTypes.KNOWN_INPUT),
+        ('MA200-MA50_1H', DataTypes.REAL_VALUED, InputTypes.KNOWN_INPUT),
+        ('MA200-MA20_1H', DataTypes.REAL_VALUED, InputTypes.KNOWN_INPUT),
+        ('MA100-MA50_1H', DataTypes.REAL_VALUED, InputTypes.KNOWN_INPUT),
+        ('MA100-MA20_1H', DataTypes.REAL_VALUED, InputTypes.KNOWN_INPUT),
+        ('MA50-MA20_1H', DataTypes.REAL_VALUED, InputTypes.KNOWN_INPUT),
+        ('EWMA8_1H', DataTypes.REAL_VALUED, InputTypes.KNOWN_INPUT),
+        ('EWMA20_1H', DataTypes.REAL_VALUED, InputTypes.KNOWN_INPUT),
+        ('MACD_1H', DataTypes.REAL_VALUED, InputTypes.KNOWN_INPUT),
+        ('BB_high_1H', DataTypes.REAL_VALUED, InputTypes.KNOWN_INPUT),
+        ('BB_low_1H', DataTypes.REAL_VALUED, InputTypes.KNOWN_INPUT),
+        ('BB_highlow_1H', DataTypes.REAL_VALUED, InputTypes.KNOWN_INPUT),
+        ('BB_high_dist_1H', DataTypes.REAL_VALUED, InputTypes.KNOWN_INPUT),
+        ('BB_low_dist_1H', DataTypes.REAL_VALUED, InputTypes.KNOWN_INPUT),
+        ('RSI_1H', DataTypes.REAL_VALUED, InputTypes.KNOWN_INPUT),
+        ('VOL8_1H', DataTypes.REAL_VALUED, InputTypes.KNOWN_INPUT),
+        ('VOL20_1H', DataTypes.REAL_VALUED, InputTypes.KNOWN_INPUT),
+        ('date', DataTypes.CATEGORICAL, InputTypes.KNOWN_INPUT),
+        ('year', DataTypes.CATEGORICAL, InputTypes.KNOWN_INPUT),
         ('month', DataTypes.CATEGORICAL, InputTypes.KNOWN_INPUT),
-        ('Region', DataTypes.CATEGORICAL, InputTypes.STATIC_INPUT)
+        ('day', DataTypes.CATEGORICAL, InputTypes.KNOWN_INPUT),
+        ('hour', DataTypes.CATEGORICAL, InputTypes.KNOWN_INPUT),
+        ('dayofweek', DataTypes.CATEGORICAL, InputTypes.KNOWN_INPUT),
     ]
 
     def __init__(self):
@@ -298,12 +312,12 @@ class MyStockFormatter(GenericDataFormatter):
 
         print('Formatting train-valid-test splits.')
 
-        ind = len(df)
-        train_index = int((1 - (valid_boundary / 100)) * ind)
-        test_index = int((1 - (test_boundary / 100)) * ind)
+        DT_CUTOFF = 28928  # 2016-08-04 15:00:00
+        train_index = int((1 - (valid_boundary / 100)) * DT_CUTOFF)
+        test_index = DT_CUTOFF + 1
 
         train = df.loc[:train_index]
-        valid = df.loc[train_index + 1: test_index]
+        valid = df.loc[train_index + 1: DT_CUTOFF]
         test = df.loc[test_index + 1:]
 
         print("Train:")
@@ -409,7 +423,7 @@ class MyStockFormatter(GenericDataFormatter):
 
         for col in column_names:
             if col not in {'forecast_time', 'identifier'}:
-                output[col] = self._target_scaler.inverse_transform(predictions[col])
+                output[col] = self._target_scaler.inverse_transform(predictions[col].to_numpy().reshape(-1, 1))
 
         return output
 
@@ -420,7 +434,7 @@ class MyStockFormatter(GenericDataFormatter):
         fixed_params = {
             'total_time_steps': 252 + 5,
             'num_encoder_steps': 252,
-            'num_epochs': 20,  # 100
+            'num_epochs': 2,  # 100
             'early_stopping_patience': 5,
             'multiprocessing_workers': 5,
         }

@@ -42,7 +42,7 @@ class ExperimentConfig(object):
       experiment.
   """
 
-  default_experiments = ['volatility', 'electricity', 'traffic', 'favorita', 'stock']
+  default_experiments = ['volatility', 'electricity', 'traffic', 'favorita', 'stock', 'ibm_stock']
 
   def __init__(self, experiment='volatility', root_folder=None):
     """Creates configs based on default experiment chosen.
@@ -83,7 +83,8 @@ class ExperimentConfig(object):
         'electricity': 'hourly_electricity.csv',
         'traffic': 'hourly_data.csv',
         'favorita': 'favorita_consolidated.csv',
-        'stock': 'stock_data.csv'
+        'stock': 'stock_data.csv',
+        'ibm_stock': 'ibm_full.csv'
     }
     print("File path:"+str(os.path.join(self.data_folder, csv_map[self.experiment])))
     return os.path.join(self.data_folder, csv_map[self.experiment])
@@ -95,7 +96,8 @@ class ExperimentConfig(object):
         'electricity': 'hourly_electricity.csv',
         'traffic': 'hourly_data.csv',
         'favorita': 'favorita_consolidated.csv',
-        'stock': 'stock_data.csv'
+        'stock': 'stock_data.csv',
+        'ibm_stock': 'ibm_test.csv'
     }
     print("File path:"+str(os.path.join(self.test_data_folder, csv_map[self.experiment])))
     return os.path.join(self.test_data_folder, csv_map[self.experiment])
@@ -117,7 +119,8 @@ class ExperimentConfig(object):
         'electricity': data_formatters.electricity.ElectricityFormatter,
         'traffic': data_formatters.traffic.TrafficFormatter,
         'favorita': data_formatters.favorita.FavoritaFormatter,
-        'stock': data_formatters.stock.StockFormatter
+        'stock': data_formatters.stock.StockFormatter,
+        'ibm_stock': data_formatters.stock.MyStockFormatter
     }
 
     return data_formatter_class[self.experiment]()
