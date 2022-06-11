@@ -191,7 +191,7 @@ class StockFormatter(GenericDataFormatter):
 
         for col in column_names:
             if col not in {'forecast_time', 'identifier'}:
-                output[col] = self._target_scaler.inverse_transform(predictions[col].reshape(-1, 1))
+                output[col] = self._target_scaler.inverse_transform(predictions[col].to_numpy().reshape(-1, 1))
 
         return output
 
@@ -243,14 +243,25 @@ class MyStockFormatter(GenericDataFormatter):
       identifiers: Entity identifiers used in experiments.
     """
 
+    # 'shadow_up_1H', 'shadow_down_1H', 'hl_ratio_1H', 'oc_diff_1H',
+    # 'MA20_1H', 'MA50_1H', 'MA100_1H', 'MA200_1H', 'MA200-MA100_1H',
+    # 'MA200-MA50_1H', 'MA200-MA20_1H', 'MA100-MA50_1H', 'MA100-MA20_1H',
+    # 'MA50-MA20_1H', 'EWMA8_1H', 'EWMA20_1H', 'MACD_1H', 'BB_high_1H',
+    # 'BB_low_1H', 'BB_highlow_1H', 'BB_high_dist_1H', 'BB_low_dist_1H',
+    # 'RSI_1H', 'VOL8_1H', 'VOL20_1H', 'ret_1', 'ticker', 'date', 'year',
+    # 'month', 'day', 'dayofweek', 'hour', 't'
+
     _column_definition = [
         ('ticker', DataTypes.CATEGORICAL, InputTypes.ID),
         ('t', DataTypes.DATE, InputTypes.TIME),
-        ('Close', DataTypes.REAL_VALUED, InputTypes.TARGET),
-        ('Open', DataTypes.REAL_VALUED, InputTypes.OBSERVED_INPUT),
+        ('Date', DataTypes.CATEGORICAL, InputTypes.KNOWN_INPUT),
+        ('Close', DataTypes.REAL_VALUED, InputTypes.KNOWN_INPUT),
+        ('Open', DataTypes.REAL_VALUED, InputTypes.KNOWN_INPUT),
         ('Low', DataTypes.REAL_VALUED, InputTypes.KNOWN_INPUT),
         ('High', DataTypes.REAL_VALUED, InputTypes.KNOWN_INPUT),
         ('Volume', DataTypes.REAL_VALUED, InputTypes.KNOWN_INPUT),
+        ('ln_Close', DataTypes.REAL_VALUED, InputTypes.OBSERVED_INPUT),
+
         ('diff', DataTypes.REAL_VALUED, InputTypes.KNOWN_INPUT),
         ('hour', DataTypes.CATEGORICAL, InputTypes.KNOWN_INPUT),
         # ('week', DataTypes.CATEGORICAL, InputTypes.KNOWN_INPUT),
