@@ -119,12 +119,12 @@ def main(expt_name, use_gpu, restart_opt, model_folder, hyperparam_iterations,
 
       opt_manager.update_score(params, val_loss, model)
 
-      tf.keras.backend.set_session(default_keras_session)
+      K.set_session(default_keras_session)
 
   print("*** Running tests ***")
   tf.compat.v1.reset_default_graph()
   with tf.Graph().as_default(), tf.compat.v1.Session(config=tf_config) as sess:
-    tf.keras.backend.set_session(sess)
+    K.set_session(sess)
     best_params = opt_manager.get_best_params()
     model = ModelClass(best_params, use_cudnn=False)
 

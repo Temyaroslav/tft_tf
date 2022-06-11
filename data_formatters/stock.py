@@ -434,7 +434,7 @@ class MyStockFormatter(GenericDataFormatter):
         fixed_params = {
             'total_time_steps': 252 + 5,
             'num_encoder_steps': 252,
-            'num_epochs': 2,  # 100
+            'num_epochs': 1,  # 100
             'early_stopping_patience': 5,
             'multiprocessing_workers': 5,
         }
