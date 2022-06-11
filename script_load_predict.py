@@ -117,7 +117,7 @@ def main(expt_name,
   tf.compat.v1.reset_default_graph()
   with tf.Graph().as_default(), tf.compat.v1.Session(config=tf_config) as sess:
     K.set_session(sess)
-    best_params = opt_manager.get_best_params()
+    best_params = opt_manager.get_best_params() if opt_manager.optimal_name != '' else opt_manager.get_next_parameters()
     print("best params")
     print(best_params)
     model = ModelClass(best_params, use_cudnn=False)
@@ -137,7 +137,8 @@ def main(expt_name,
     #targets.to_csv(os.path.join(config.model_folder, "targets", "test_predictions.csv"), index=False)
     p50_forecast = data_formatter.format_predictions(output_map["p50"])
     p90_forecast = data_formatter.format_predictions(output_map["p90"])
-    p90_forecast.to_csv(os.path.join(config.model_folder, "targets", "test_predictions.csv"), index=False)
+    p50_forecast.to_csv(os.path.join(config.model_folder, "targets", "test_predictions_p50.csv"), index=False)
+    p90_forecast.to_csv(os.path.join(config.model_folder, "targets", "test_predictions_p90.csv"), index=False)
     def extract_numerical_data(data):
       """Strips out forecast time and identifier columns."""
       return data[[

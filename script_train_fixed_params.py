@@ -158,7 +158,8 @@ def main(expt_name,
     targets = data_formatter.format_predictions(output_map["targets"])
     p50_forecast = data_formatter.format_predictions(output_map["p50"])
     p90_forecast = data_formatter.format_predictions(output_map["p90"])
-
+    p50_forecast.to_csv(os.path.join(config.model_folder, "targets", "test_predictions_p50.csv"), index=False)
+    p90_forecast.to_csv(os.path.join(config.model_folder, "targets", "test_predictions_p90.csv"), index=False)
     def extract_numerical_data(data):
       """Strips out forecast time and identifier columns."""
       return data[[
