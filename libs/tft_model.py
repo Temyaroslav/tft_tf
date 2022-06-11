@@ -1054,7 +1054,7 @@ class TemporalFusionTransformer(object):
 
       model = tf.keras.Model(inputs=all_inputs, outputs=outputs)
 
-      print(model.summary())
+      # print(model.summary())
 
       valid_quantiles = self.quantiles
       output_size = self.output_size
