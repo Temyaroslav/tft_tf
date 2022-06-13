@@ -97,7 +97,7 @@ class ExperimentConfig(object):
         'traffic': 'hourly_data.csv',
         'favorita': 'favorita_consolidated.csv',
         'stock': 'stock_data.csv',
-        'ibm_stock': 'ibm_test.csv'
+        'ibm_stock': 'ibm_full.csv'
     }
     print("File path:"+str(os.path.join(self.test_data_folder, csv_map[self.experiment])))
     return os.path.join(self.test_data_folder, csv_map[self.experiment])
